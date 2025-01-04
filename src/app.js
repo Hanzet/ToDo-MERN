@@ -1,6 +1,7 @@
 import express from 'express';
 import morgan from 'morgan';
 import cookieParser from 'cookie-parser';
+import cors from 'cors';
 
 import authRoutes from './routes/auth.routes.js';
 import taskRoutes from './routes/tasks.routes.js';
@@ -10,6 +11,15 @@ const app = express(); /* Es una instancia de la aplicación de Express.
     Los middlewares.
     Las rutas.
     La configuración del servidor.
+*/
+
+app.use(cors({
+    origin: 'http://localhost:5173', // URL de tu aplicación cliente.
+}));
+/*
+    ¿Qué hace esto?
+    cors(): Es un middleware que permite que los recursos de tu servidor sean accedidos por un dominio diferente.
+    Esto es necesario para que tu aplicación cliente pueda comunicarse con tu servidor.
 */
 
 app.use(morgan('dev'));
