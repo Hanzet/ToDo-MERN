@@ -1,6 +1,9 @@
 import express from 'express';
 import morgan from 'morgan';
+import cookieParser from 'cookie-parser';
+
 import authRoutes from './routes/auth.routes.js';
+import taskRoutes from './routes/tasks.routes.js';
 
 const app = express(); /* Es una instancia de la aplicación de Express. 
     Es el núcleo de tu servidor, y en esta instancia defines:
@@ -27,11 +30,25 @@ app.use(express.json());
     Esto permite que tu aplicación procese solicitudes JSON.
 */
 
+app.use(cookieParser());
+/*
+    ¿Qué hace esto?
+    cookieParser(): Es un middleware que analiza las cookies de la solicitud y las almacena en req.cookies.
+    Esto permite que tu aplicación procese cookies.
+*/
+
 app.use("/api", authRoutes);
 /* 
     ¿Qué hace esto?
     app.use(): Registra un middleware o rutas en la aplicación.
     "/api": Especifica un prefijo para las rutas definidas en authRoutes. Todas las rutas de authRoutes estarán precedidas por /api.
+*/
+
+app.use("/api", taskRoutes);
+/* 
+    ¿Qué hace esto?
+    app.use(): Registra un middleware o rutas en la aplicación.
+    "/api": Especifica un prefijo para las rutas definidas en taskRoutes. Todas las rutas de taskRoutes estarán precedidas por /api.
 */
 
 export default app;
