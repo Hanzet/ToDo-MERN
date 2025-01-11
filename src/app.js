@@ -15,6 +15,7 @@ const app = express(); /* Es una instancia de la aplicación de Express.
 
 app.use(cors({
     origin: 'http://localhost:5173', // URL de tu aplicación cliente.
+    credentials: true // Habilita las credenciales para el intercambio de recursos entre dominios.
 }));
 /*
     ¿Qué hace esto?

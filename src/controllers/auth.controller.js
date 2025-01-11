@@ -1,6 +1,8 @@
 import User from "../models/user.model.js";
 import bcrypt from "bcryptjs";
 import { createAccessToken } from "../libs/jwt.js";
+import jwt from "jsonwebtoken";
+import { TOKEN_SECRET } from "../config.js";
 
 export const register = async (req, res) => { // Registra un nuevo usuario
     const { username, email, password } = req.body; // Obtiene los datos del usuario desde el cuerpo de la petición
@@ -21,6 +23,12 @@ export const register = async (req, res) => { // Registra un nuevo usuario
         const userSaved = await newUser.save(); // Guarda el usuario en la base de datos
         const token = await createAccessToken({ id: userSaved._id }); // Crea un token de acceso
 
+        // res.cookie('token', token, {
+        //     httpOnly: true, // Solo se puede acceder al token desde el servidor
+        //     secure: true, // Solo se envía el token si la conexión es segura
+        //     sameSite: 'none' // Guarda el token en una cookie, el token puedo observarlo en el "Header o Cookies"
+        // }) // Guarda el token en una cookie, el token puedo observarlo en el "Header o Cookies"
+        
         res.cookie('token', token) // Guarda el token en una cookie, el token puedo observarlo en el "Header o Cookies"
         res.json({ // Devuelve un JSON con los datos del usuario registrado
             id: userSaved._id,
@@ -78,4 +86,23 @@ export const profile = async (req, res) => { // Obtiene el perfil de un usuario
         createdAt: userFound.createdAt,
         updatedAt: userFound.updatedAt
     })
+}
+
+export const verifyToken = async (req, res) => { // Verifica el token de un usuario
+    const { token } = req.cookies // Obtiene el token de las cookies
+
+    if (!token) return res.status(401).json({ message: "Unauthorized" }) // Si no hay token, devuelve un mensaje de error
+
+    jwt.verify(token, TOKEN_SECRET, async (err, user) => { // Verifica el token
+        if (err) return res.status(401).json({ message: "Unauthorized" }); // Si hay un error, devuelve un mensaje de error
+
+        const userFound = await User.findById(user.id); // Busca un usuario por su ID
+        if (!userFound) return res.status(400).json({ message: "Unauthorized" }); // Si no encuentra al usuario, devuelve un mensaje de error
+
+        return res.json({ // Devuelve un JSON con los datos del usuario
+            id: userFound._id,
+            username: userFound.username,
+            email: userFound.email,
+        });
+    });
 }
